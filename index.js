@@ -1,165 +1,97 @@
 #! /usr/bin/env node
 import inquirer from "inquirer";
-class player {
+import chalk from "chalk";
+class Player {
     name;
     fuel = 100;
     constructor(name) {
         this.name = name;
     }
     fuelDecrease() {
-        let fuel = this.fuel - 25;
-        this.fuel = fuel;
+        this.fuel -= 25;
     }
     fuelIncrease() {
         this.fuel = 100;
     }
 }
-class opponent {
+class Opponent {
     name;
     fuel = 100;
     constructor(name) {
         this.name = name;
     }
     fuelDecrease() {
-        let fuel = this.fuel - 25;
-        this.fuel = fuel;
+        this.fuel -= 25;
     }
 }
-let playerName = await inquirer.prompt([
-    {
-        name: "name",
-        type: "input",
-        message: "Please enter your name ",
-    },
-]);
-let opponentName = await inquirer.prompt([
-    {
-        name: "Select",
-        type: "list",
-        message: "Select your opponent",
-        choices: ["Skeleton", "Alien", "Zombie"],
-    },
-]);
-let p1 = new player(playerName.name);
-let o1 = new opponent(opponentName.Select);
-do {
-    if (opponentName.Select === "Skeleton") {
+async function startGame() {
+    let playerName = await inquirer.prompt([
+        {
+            name: "name",
+            type: "input",
+            message: "Please enter your name ",
+        },
+    ]);
+    let opponentName = await inquirer.prompt([
+        {
+            name: "Select",
+            type: "list",
+            message: "Select your opponent",
+            choices: ["Skeleton", "Alien", "Zombie"],
+        },
+    ]);
+    let p1 = new Player(playerName.name);
+    let o1 = new Opponent(opponentName.Select);
+    do {
         let ask = await inquirer.prompt([
             {
                 name: "Opt",
                 type: "list",
                 message: "What would you like to do",
-                choices: ["Attack", "Drink portion", "Run for your life.."],
+                choices: ["Attack", "Drink potion", "Run for your life.."],
             },
         ]);
         if (ask.Opt === "Attack") {
             let num = Math.floor(Math.random() * 2);
             if (num > 0) {
                 p1.fuelDecrease();
-                console.log(`${p1.name} fuel is ${p1.fuel}.`);
-                console.log(`${o1.name} fuel is ${o1.fuel}.`);
-                if (p1.fuel <= 0) {
-                    console.log("You loose, Better luck next time.");
-                    process.exit();
-                }
             }
-            if (num <= 0) {
+            else {
                 o1.fuelDecrease();
-                console.log(`${p1.name} fuel is ${p1.fuel}.`);
-                console.log(`${o1.name} fuel is ${o1.fuel}.`);
-                if (o1.fuel <= 0) {
-                    console.log("You Win.");
-                    process.exit();
-                }
+            }
+            console.log(chalk.blue(`${p1.name}'s fuel is ${p1.fuel}.`));
+            console.log(chalk.red(`${o1.name}'s fuel is ${o1.fuel}.`));
+            if (p1.fuel <= 0) {
+                console.log(chalk.red.bold("You lose, better luck next time."));
+                break;
+            }
+            if (o1.fuel <= 0) {
+                console.log(chalk.green.bold("You win!"));
+                break;
             }
         }
-        if (ask.Opt === "Drink portion") {
+        else if (ask.Opt === "Drink potion") {
             p1.fuelIncrease();
-            console.log(`You drink health portion your fuel is ${p1.fuel}.`);
+            console.log(chalk.green(`You drink a health potion, your fuel is ${p1.fuel}.`));
         }
-        if (ask.Opt === "Run for your life..") {
-            console.log("You loose, Better luck next time.");
-            process.exit();
+        else if (ask.Opt === "Run for your life..") {
+            console.log(chalk.red.bold("You lose, better luck next time."));
+            break;
         }
+    } while (true);
+    let playAgain = await inquirer.prompt([
+        {
+            name: "playAgain",
+            type: "confirm",
+            message: "Do you want to play again?",
+        },
+    ]);
+    if (playAgain.playAgain) {
+        startGame();
     }
-    //Alien
-    if (opponentName.Select === "Alien") {
-        let ask = await inquirer.prompt([
-            {
-                name: "Opt",
-                type: "list",
-                message: "What would you like to do",
-                choices: ["Attack", "Drink portion", "Run for your life.."],
-            },
-        ]);
-        if (ask.Opt === "Attack") {
-            let num = Math.floor(Math.random() * 2);
-            if (num > 0) {
-                p1.fuelDecrease();
-                console.log(`${p1.name} fuel is ${p1.fuel}.`);
-                console.log(`${o1.name} fuel is ${o1.fuel}.`);
-                if (p1.fuel <= 0) {
-                    console.log("You loose, Better luck next time.");
-                    process.exit();
-                }
-            }
-            if (num <= 0) {
-                o1.fuelDecrease();
-                console.log(`${p1.name} fuel is ${p1.fuel}.`);
-                console.log(`${o1.name} fuel is ${o1.fuel}.`);
-                if (o1.fuel <= 0) {
-                    console.log("You Win.");
-                    process.exit();
-                }
-            }
-        }
-        if (ask.Opt === "Drink portion") {
-            p1.fuelIncrease();
-            console.log(`You drink health portion your fuel is ${p1.fuel}.`);
-        }
-        if (ask.Opt === "Run for your life..") {
-            console.log("You loose, Better luck next time.");
-            process.exit();
-        }
+    else {
+        console.log(chalk.yellow("Thanks for playing!"));
+        process.exit();
     }
-    // Zombie
-    if (opponentName.Select === "Zombie") {
-        let ask = await inquirer.prompt([
-            {
-                name: "Opt",
-                type: "list",
-                message: "What would you like to do",
-                choices: ["Attack", "Drink portion", "Run for your life.."],
-            },
-        ]);
-        if (ask.Opt === "Attack") {
-            let num = Math.floor(Math.random() * 2);
-            if (num > 0) {
-                p1.fuelDecrease();
-                console.log(`${p1.name} fuel is ${p1.fuel}.`);
-                console.log(`${o1.name} fuel is ${o1.fuel}.`);
-                if (p1.fuel <= 0) {
-                    console.log("You loose, Better luck next time.");
-                    process.exit();
-                }
-            }
-            if (num <= 0) {
-                o1.fuelDecrease();
-                console.log(`${p1.name} fuel is ${p1.fuel}.`);
-                console.log(`${o1.name} fuel is ${o1.fuel}.`);
-                if (o1.fuel <= 0) {
-                    console.log("You Win.");
-                    process.exit();
-                }
-            }
-        }
-        if (ask.Opt === "Drink portion") {
-            p1.fuelIncrease();
-            console.log(`You drink health portion your fuel is ${p1.fuel}.`);
-        }
-        if (ask.Opt === "Run for your life..") {
-            console.log("You loose, Better luck next time.");
-            process.exit();
-        }
-    }
-} while (true);
+}
+startGame();
